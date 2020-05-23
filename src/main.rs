@@ -16,7 +16,6 @@ fn main() {
 
 		// Trim the trailing new line character, split on whitespaces, and collect into a vec
 		let mut commands: Vec<&str> = input.trim().split_whitespace().collect();
-		println!("{:?}", commands);
 
 		// Create a new process of the give command (e.g. `ls`)
 		let mut child = Command::new(commands.remove(0))
