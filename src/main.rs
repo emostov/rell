@@ -1,14 +1,14 @@
-use rell::{run_command, Config};
+use futures::executor::block_on;
+use rell::{change_dir, run_command, Config};
 use std::{
     io::{self, Write},
     process,
 };
-use futures::executor::block_on;
 
 // Responsible for parsing logic, configuration and handling errors
 fn main() {
     loop {
-		// Give the user a prompt to enter a command
+        // Give the user a prompt to enter a command
         print!("RELL%% ");
 
         // Flush standard out to make sure the prompt prints and is not stuck in the buffer
@@ -27,8 +27,14 @@ fn main() {
             process::exit(1);
         });
 
-        if let Err(e) = block_on(run_command(config)) {
-            eprintln!("{}", e);
+        match config.command.as_ref() {
+            ".quit" => return,
+            "cd" => if let Err(e) = change_dir(config) {
+				eprintln!("{}", e);
+			},
+            _ => if let Err(e) = block_on(run_command(config)) {
+					eprintln!("{}", e);
+				},
         }
     }
 }

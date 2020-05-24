@@ -1,11 +1,8 @@
-use std::{
-    error::Error,
-    process::Command,
-};
+use std::{env, error::Error, path::Path, process::Command};
 
 pub struct Config {
-    pub args: Vec<String>,
     pub command: String,
+    pub args: Vec<String>,
 }
 
 impl Config {
@@ -26,12 +23,24 @@ impl Config {
 }
 
 pub async fn run_command(config: Config) -> Result<(), Box<dyn Error>> {
-	// Create a new process of the give command (e.g. `ls`)
+    // Create a new process of the give command (e.g. `ls`)
     let mut child = Command::new(config.command)
         .args(config.args) // Give the remaining args to the command
-		.spawn()?; // Spawn the process and return an error if there is an issue
+        .spawn()?; // Spawn the process and return an error if there is an issue
 
-	child.wait()?;
+    child.wait()?;
 
+    Ok(())
+}
+
+pub fn change_dir(config: Config) -> Result<(), Box<dyn Error>> {
+    let base_path = "/".to_string();
+    let path = if config.args.len() > 0 {
+        &config.args[0]
+    } else {
+        &base_path
+    };
+    let next_dir = Path::new(path);
+    env::set_current_dir(&next_dir)?;
     Ok(())
 }
